@@ -1,4 +1,4 @@
-<!doctype html> 
+<!DOCTYPE html>
 <html lang="en"> 
 <head> 
 	<meta charset="UTF-8" />
@@ -7,110 +7,128 @@
     <style type="text/css">
         body {
             margin: 0;
+			background-color: white;
         }
     </style>
 </head>
 <body>
 
-<script type="text/javascript">
-// Full Docs: http://docs.phaser.io
-// Phase.Game() Docs: http://docs.phaser.io/Phaser.Game.html
+	<script type="text/javascript">
+		// Full Docs: http://docs.phaser.io
+		// Phase.Game() Docs: http://docs.phaser.io/Phaser.Game.html
 
-'use strict'
+		'use strict'
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+		var game = new Phaser.Game(600, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
-function preload() {
-    game.load.image('dealwithit', 'assets/dealwithit.png');
-	
-	// Get physics for all of the pieces
-	// game.load.physics('physicsData', 'assets/physics/sprites');
-}
-
-var cursors;
-var platforms;
-var score = 0;
-var scoreText;
-var pieces;
-var tower;
+		function preload() {
+			game.load.image('square', 'assets/square.png');
+			game.load.image('rectangle', 'assets/rectangle.png');
+			
+			// Get physics for all of the pieces
+			game.load.physics('physicsData', 'assets/physics/sprites.json');
+		}
 
 
-/**
- * Set up the stage for the game.
- */
-function create() {
+		var cursors;
+		var platforms;
+		var scoreText;
+		var pieces;
+		var tower;
+		var timer; 
 
-	cursors = game.input.keyboard.createCursorKeys();
-	
-	//  We're going to be using physics, so enable the P2 Physics system
-    game.physics.startSystem(Phaser.Physics.P2JS);
+		var score = 0;
 
-    //  A simple background for our game
-    game.add.sprite(20, 20, 'dealwithit');
 
-	scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
-	
-    //  The platforms group contains the ground and the 2 ledges we can jump on
-    platforms = game.add.group();
+		/**
+		 * Set up the stage for the game.
+		 */
+		function create() {
 
-    //  We will enable physics for any object that is created in this group
-    platforms.enableBody = true;
+			cursors = game.input.keyboard.createCursorKeys();
+			game.stage.backgroundColor = '#000';
+			
+			//  We're going to be using physics, so enable the P2 Physics system
+			game.physics.startSystem(Phaser.Physics.P2JS);
+			game.physics.p2.restitution = 0.9;
+			
+			scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
+			
+			//  The platforms group contains the ground and the 2 ledges we can jump on
+			platforms = game.add.group();	
+			pieces = game.add.group();	
+			tower = game.add.group();
+			createPiece();
+		}
 
-	// THIS IS KEPT FOR EXAMPLE 
-	// WE WILL WANT TO CREATE PIECES IN THIS MANNER
-	//  Create a diamond inside of the 'diamond' group
-    // var diamond = diamonds.create(0, 0, 'diamond');
+		/**
+		 * Create a new Piece.
+		 */
+		function createPiece() {
+			// Randomly generate 
+			var pieceType = game.rnd.integerInRange(0,1);
+			var pieceOrientation = game.rnd.integerInRange(0,3);
+			var newPiece;
 
-    //  Let gravity do its thing
-    // diamond.body.gravity.y = 30;
-}
+			if (pieceType == 0) {
+				newPiece = game.add.sprite(40,80, 'rectangle');
+				game.physics.p2.enable(newPiece, true);
+				newPiece.body.loadPolygon('physicsData', 'rectangle');
+			} 
+			else {
+				newPiece = game.add.sprite(40,40, 'square');
+				game.physics.p2.enable(newPiece, true);
+				newPiece.body.loadPolygon('physicsData', 'square');
+			}
+			
+			pieces.add(newPiece);
+			
+		}
 
-/**
- * Create a new Piece.
- * @returns {Piece} - a randomly generated Piece object
- */
-function createPiece() {
-	
-	return null;
-}
+		/**
+		 * Calculate the points of the scored tower.
+		 * @param {Tower} - a tower object to be scored.
+		 * @returns {Number} - the point value that the tower was worth.
+		 */
+		function  scoreTower(Tower) {
 
-/**
- * Calculate the points of the scored tower.
- * @param {Tower} - a tower object to be scored.
- * @returns {Number} - the point value that the tower was worth.
- */
-function  scoreTower(Tower) {
+		}
 
-}
+		/**
+		 * Update the stuff.
+		 */
+		function update() {
 
-/**
- * Update the stuff.
- */
-function update() {
-	//  Collide the pieces and the stars with the platform and themselves
-    game.physics.arcade.collide(pieces, platforms);
-    game.physics.arcade.collide(pieces, pieces);
-	
-	// The cursor handler.
-    if (cursors.left.isDown) {
-		//  Move to the left
-		// player.body.velocity.x = -200;
-		// player.animations.play('left');
-    }
-    else if (cursors.right.isDown) {
-        //  Move to the right
-		// player.body.velocity.x = 200;
-		// player.animations.play('right');
-    }
-    else {
-        //  Stand still
-		// player.animations.stop();
-		// player.frame = 4;
-    }
-	
-}
+			//createPiece();
+			
+			pieces.forEachAlive(function(piece) {
+				piece.body.velocity.y = 200;
+			});
+			
+			// The cursor handler.
+			if (cursors.left.isDown) {
+				//  Move to the left
+				platforms.forEachAlive(function(player) {
+					player.body.velocity.x = -200;
+				});
+				
+			}
+			else if (cursors.right.isDown) {
+				//  Move to the right
+				platforms.forEachAlive(function(player) {
+					player.body.velocity.x = +200;
+				});
+			}
+			else {
+				// Stand still
+				platforms.forEachAlive(function(player) {
+					player.body.velocity.x = 0;
+				});
+			}
+			
+		}
 
-</script>
+	</script>
 
 </body>
 </html>
