@@ -96,16 +96,32 @@ var app = (function(app){
 				newPiece.body.x = this.game.rnd.integerInRange(10, app.SCREEN_WIDTH-10);
 			}
 			
+			// Move all of the pieces down.
+			newPiece.body.velocity.y = 200;
 			this.pieces.add(newPiece);
 			
 		}, // End createPiece
 	
 		/**
-		* Calculate what constitutes a tower.
+		* Add things to the tower.
 		*/
-		detectTower: function() {
-			
-		}, // End detectTower
+		addToTower: function(piece) {
+			this.tower.add(piece);			
+		}, // End addToTower
+
+		/**
+		* Remove things from the tower.
+		*/
+		collapseTower: function(){
+			var tempScore = 0;
+			var multi = this.tower.countLiving();
+			this.tower.forEachAlive(function(piece){
+				piece.kill();
+				piece.visible = false;
+				tempScore = 50;
+			});
+			this.score += tempScore * multi;
+		}, // End collapseTower
 	
 		/**
 		* Calculate the points of the scored tower.
@@ -127,8 +143,6 @@ var app = (function(app){
 			
 			// Deal with all the pieces 
 			this.pieces.forEachAlive(function(piece) {
-				// Move all of the pieces down.
-				piece.body.velocity.y = 200;
 	
 				// Kill the Piece if it hits the Bottom
 				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
@@ -136,14 +150,33 @@ var app = (function(app){
 					piece.visible = false;
 					self.createPiece(); // PROBLEM HERE
 				}
+
+				if(piece.body.velocity.y <= 3){
+					self.addToTower(piece);
+					self.createPiece();
+				}
 			});
-	
+
+			// Deal with all the pieces in tower
+			this.tower.forEachAlive(function(piece){
+				piece.body.velocity.y = 200;
+
+				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
+					self.collapseTower();
+				}
+
+
+
+			});	
 			// The cursor handler.
 			if (this.cursors.left.isDown) {
 				//  Move to the left
 				// console.log("left");
 				this.platforms.forEachAlive(function(player) {
 					player.body.moveLeft(200);
+				});
+				this.tower.forEachAlive(function(piece) {
+					piece.body.moveLeft(200);
 				});
 			}
 			else if (this.cursors.right.isDown) {
@@ -152,13 +185,22 @@ var app = (function(app){
 				this.platforms.forEachAlive(function(player) {
 					player.body.moveRight(200);
 				});
+				this.tower.forEachAlive(function(piece) {
+					piece.body.moveRight(200);
+				});
 			}
 			else {
 				// Stand still
 				this.platforms.forEachAlive(function(player) {
 					player.body.velocity.x = 0;
 				});
+				this.tower.forEachAlive(function(piece) {
+					piece.body.velocity.x =0;
+				});
 			}
+
+			this.scoreText.text = "Score: " + this.score;
+
 		} // End Update
 	} // End mainGame.prototype
 	
