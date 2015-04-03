@@ -121,6 +121,10 @@ var app = (function(app){
 		*/
 		update: function() {
 			
+			// Bug present if createPiece() called within the forEachAlive loop
+			// Remedy by setting context variable "self" to outside scope
+			var self = this;
+			
 			// Deal with all the pieces 
 			this.pieces.forEachAlive(function(piece) {
 				// Move all of the pieces down.
@@ -130,7 +134,7 @@ var app = (function(app){
 				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
 					piece.kill();
 					piece.visible = false;
-					mainGame.createPiece(); // PROBLEM HERE
+					self.createPiece(); // PROBLEM HERE
 				}
 			});
 	
