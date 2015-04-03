@@ -1,173 +1,21 @@
 <!DOCTYPE html>
 <html lang="en"> 
-<head> 
-	<meta charset="UTF-8" />
-	<title>Stack-n-Shake</title>
-	<script type="text/javascript" src="js/phaser.js"></script>
-    <style type="text/css">
-        body {
-            margin: 0;
-			background-color: white;
-        }
-    </style>
-</head>
-<body>
-
-	<script type="text/javascript">
-		// Full Docs: http://docs.phaser.io
-		// Phase.Game() Docs: http://docs.phaser.io/Phaser.Game.html
-
-		'use strict'
-
-		var game = new Phaser.Game(SCREEN_WIDTH, SCREEN_HEIGHT, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-
-		function preload() {
-			game.load.image('square', 'assets/square.png');
-			game.load.image('rectangle', 'assets/rectangle.png');
-			
-			// Get physics for all of the pieces
-			game.load.physics('physicsData', 'assets/physics/sprites.json');
-		}
-
-		// Variables
-		var cursors;
-		var platforms;
-		var scoreText;
-		var pieces;
-		var tower;
-		var timer; 
-
-		var score = 0;
-
-		// Constants
-		var SCREEN_WIDTH = 600;
-		var SCREEN_HEIGHT = 600;
-
-		/**
-		 * Set up the stage for the game.
-		 */
-		function create() {
-
-			cursors = game.input.keyboard.createCursorKeys();
-			game.stage.backgroundColor = '#000';
-			
-			//  We're going to be using physics, so enable the P2 Physics system
-			game.physics.startSystem(Phaser.Physics.P2JS);
-			game.physics.p2.restitution = 0.9;
-			
-			scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
-			
-			//  Create all of the groups in the game
-			platforms = game.add.group();	
-			pieces = game.add.group();	
-			tower = game.add.group();
-
-			// Create the platform on which blocks will land.
-			var playerPlatform = game.add.sprite(40, 80, 'rectangle');
-			game.physics.p2.enable(playerPlatform, true);
-			playerPlatform.body.loadPolygon('physicsData', 'rectangle');
-			playerPlatform.body.x = SCREEN_WIDTH /2;
-			playerPlatform.body.y = SCREEN_HEIGHT - (SCREEN_HEIGHT/5);
-			playerPlatform.body.angle = 90;
-			playerPlatform.body.kinematic = true;
-
-			// Add the platform to the platform group. 
-			// This is here in case we decide to add more platforms later.
-			platforms.add(playerPlatform);
-
-			// Create the test piece
-			createPiece();
-		}
-
-		/**
-		 * Create a new Piece.
-		 */
-		function createPiece() {
-			// Randomly generate 
-			var pieceType = game.rnd.integerInRange(0,1);
-			var pieceOrientation = game.rnd.integerInRange(0,3);
-			var newPiece;
-
-			if (pieceType == 0) {
-				newPiece = game.add.sprite(40,80, 'rectangle');
-				game.physics.p2.enable(newPiece, true);
-				newPiece.body.loadPolygon('physicsData', 'rectangle');
-				newPiece.body.x = game.rnd.integerInRange(10, SCREEN_WIDTH-10);
-				newPiece.body.angle = pieceOrientation * 90;
-			} 
-			else {
-				newPiece = game.add.sprite(40,40, 'square');
-				game.physics.p2.enable(newPiece, true);
-				newPiece.body.loadPolygon('physicsData', 'square');
-				newPiece.body.x = game.rnd.integerInRange(10, SCREEN_WIDTH-10);
+	<head> 
+		<meta charset="UTF-8" />
+		<title>Stack-n-Shake</title>
+		
+		<!-- Game Scripts -->
+		<script type="text/javascript" src = "js/phaser.js"></script>
+		<script type="text/javascript" src = "js/initializer.js"></script>
+		<script type="text/javascript" src = "js/mainGame.js"></script>
+		
+		<style type="text/css">
+			body {
+				margin: 0;
+				background-color: white;
 			}
-			
-			pieces.add(newPiece);
-			
-		}
-
-		/**
-		 * Calculate what constitutes a tower.
-		 */
-		function  detectTower() {
-			
-		}
-
-		/**
-		 * Calculate the points of the scored tower.
-		 * @param {Tower} - a tower object to be scored.
-		 * @returns {Number} - the point value that the tower was worth.
-		 */
-		function  scoreTower(Tower) {
-
-		}
-
-		/**
-		 * Update the stuff.
-		 */
-		function update() {
-			
-			// Deal with all the pieces 
-			pieces.forEachAlive(function(piece) {
-				// Move all of the pieces down.
-				piece.body.velocity.y = 200;
-
-				// Kill the Piece if it hits the Bottom
-				if(piece.body.y >= (SCREEN_HEIGHT - piece.height)) {
-					piece.kill();
-					piece.visible = false;
-					createPiece();
-				}
-
-			});
-
-			// The cursor handler.
-			if (cursors.left.isDown) {
-				//  Move to the left
-				// console.log("left");
-				platforms.forEachAlive(function(player) {
-					player.body.moveLeft(200);
-				});
-				
-			}
-			else if (cursors.right.isDown) {
-				//  Move to the right
-				// console.log("right");
-				platforms.forEachAlive(function(player) {
-					player.body.moveRight(200);
-				});
-			}
-			else {
-				// Stand still
-				platforms.forEachAlive(function(player) {
-					player.body.velocity.x = 0;
-					
-				});
-			}
-
-		}
-
-	</script>
-
-</body>
+		</style>
+	</head>
+	<body>
+	</body>
 </html>
