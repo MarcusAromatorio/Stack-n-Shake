@@ -86,14 +86,14 @@ var app = (function(app){
 				newPiece = this.game.add.sprite(40,80, 'rectangle');
 				this.game.physics.p2.enable(newPiece, true);
 				newPiece.body.loadPolygon('physicsData', 'rectangle');
-				newPiece.body.x = this.game.rnd.integerInRange(10, app.SCREEN_WIDTH-10);
+				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
 				newPiece.body.angle = pieceOrientation * 90;
 			} 
 			else {
 				newPiece = this.game.add.sprite(40,40, 'square');
 				this.game.physics.p2.enable(newPiece, true);
 				newPiece.body.loadPolygon('physicsData', 'square');
-				newPiece.body.x = this.game.rnd.integerInRange(10, app.SCREEN_WIDTH-10);
+				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
 			}
 			
 			// Move all of the pieces down.
@@ -118,7 +118,7 @@ var app = (function(app){
 			this.tower.forEachAlive(function(piece){
 				piece.kill();
 				piece.visible = false;
-				tempScore = 50;
+				tempScore += 50;
 			});
 			this.score += tempScore * multi;
 		}, // End collapseTower
