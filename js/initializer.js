@@ -30,7 +30,7 @@ var app = (function(app){
 	
 	// Constants
 	var SCREEN_WIDTH = 600;
-	var SCREEN_HEIGHT = 600;
+	var SCREEN_HEIGHT = 700;
 
 	// Initialization function to call once the page completes loading
 	function init(){
@@ -38,7 +38,7 @@ var app = (function(app){
 		// Phaser.game() takes numerous optional arg's
 		// Those specified here describe: width, height, and renderer 
 		// (WebGL, Canvas, or 'Auto', in which Phaser itself chooses the renderer)
-		game = new Phaser.Game(600, 600, Phaser.AUTO);
+		game = new Phaser.Game(SCREEN_WIDTH, SCREEN_HEIGHT, Phaser.AUTO);
 
 		/**
 		 * Main Menu game state

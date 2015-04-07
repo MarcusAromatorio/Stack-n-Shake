@@ -32,6 +32,10 @@ var app = (function(app){
 		preload: function() {
 			this.game.load.image('square', 'assets/square.png');
 			this.game.load.image('rectangle', 'assets/rectangle.png');
+			this.game.load.image('tri', 'assets/tri.png');
+			this.game.load.image('tee', 'assets/tee.png');
+			this.game.load.image('corner', 'assets/corner.png');
+			this.game.load.image('bucket', 'assets/bucket.png');
 			
 			// Get physics for all of the pieces
 			this.game.load.physics('physicsData', 'assets/physics/sprites.json');
@@ -47,6 +51,8 @@ var app = (function(app){
 			
 			//  We're going to be using physics, so enable the P2 Physics system
 			this.game.physics.startSystem(Phaser.Physics.P2JS);
+			// Gravity isn't enabled in this version of the physics
+			// this.game.physics.gravity.y = 200;
 			this.game.physics.p2.restitution = 0.9;
 			
 			this.scoreText = this.game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
@@ -78,22 +84,54 @@ var app = (function(app){
 		*/
 		createPiece: function() {
 			// Randomly generate 
-			var pieceType = this.game.rnd.integerInRange(0,1);
+			var pieceType = this.game.rnd.integerInRange(0,5);
 			var pieceOrientation = this.game.rnd.integerInRange(0,3);
 			var newPiece;
 	
 			if (pieceType == 0) {
 				newPiece = this.game.add.sprite(40,80, 'rectangle');
-				this.game.physics.p2.enable(newPiece, true);
+				// For reference, this is the line that shows hitbox
+				// If this line says true, an after image will be left
+				this.game.physics.p2.enable(newPiece, false);
+				newPiece.body.clearShapes();
 				newPiece.body.loadPolygon('physicsData', 'rectangle');
-				newPiece.body.x = this.game.rnd.integerInRange(10, app.SCREEN_WIDTH-10);
+				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
 				newPiece.body.angle = pieceOrientation * 90;
-			} 
-			else {
+			} else if (pieceType == 1) {
+				// Still squares for testing purposes
 				newPiece = this.game.add.sprite(40,40, 'square');
 				this.game.physics.p2.enable(newPiece, true);
+				newPiece.body.clearShapes();
 				newPiece.body.loadPolygon('physicsData', 'square');
-				newPiece.body.x = this.game.rnd.integerInRange(10, app.SCREEN_WIDTH-10);
+				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
+				newPiece.body.angle = pieceOrientation * 90;
+			} else if (pieceType == 2) {
+				newPiece = this.game.add.sprite(120,80, 'tee');
+				this.game.physics.p2.enable(newPiece, false);
+				newPiece.body.clearShapes();
+				newPiece.body.loadPolygon('physicsData', 'tee');
+				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
+				newPiece.body.angle = pieceOrientation * 90;
+			} else if (pieceType == 3) {
+				newPiece = this.game.add.sprite(80,80, 'corner');
+				this.game.physics.p2.enable(newPiece, true);
+				newPiece.body.clearShapes();
+				newPiece.body.loadPolygon('physicsData', 'corner');
+				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
+				newPiece.body.angle = pieceOrientation * 90;
+			} else if (pieceType == 4) {
+				newPiece = this.game.add.sprite(120,80, 'bucket');
+				this.game.physics.p2.enable(newPiece, true);
+				newPiece.body.clearShapes();
+				newPiece.body.loadPolygon('physicsData', 'bucket');
+				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
+				newPiece.body.angle = pieceOrientation * 90;
+			} else {
+				newPiece = this.game.add.sprite(40,40, 'square');
+				this.game.physics.p2.enable(newPiece, false);
+				newPiece.body.clearShapes();
+				newPiece.body.loadPolygon('physicsData', 'square');
+				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
 			}
 			
 			// Move all of the pieces down.
@@ -118,7 +156,7 @@ var app = (function(app){
 			this.tower.forEachAlive(function(piece){
 				piece.kill();
 				piece.visible = false;
-				tempScore = 50;
+				tempScore += 50;
 			});
 			this.score += tempScore * multi;
 		}, // End collapseTower

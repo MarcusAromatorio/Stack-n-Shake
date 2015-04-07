@@ -3,7 +3,7 @@
 		"square": [
 			
 				{
-					"density": 2, "friction": 0, "bounce": 0, 
+					"density": 2, "friction": 10, "bounce": 0, 
 					"filter": { "categoryBits": 1, "maskBits": 65535 },
 					"shape": [   0, 0  ,  40, 0  ,  40, 40  ,  0, 40  ]
 				}
@@ -12,12 +12,70 @@
 		"rectangle": [
 				
 				{
-					"density": 2, "friction": 0, "bounce": 0, 
+					"density": 2, "friction": 10, "bounce": 0, 
 					"filter": { "categoryBits": 1, "maskBits": 65535 },
 					"shape": [   0, 0  ,  40, 0  ,  40, 80  ,  0, 80  ]
 				}
 		
+		],
+
+		"tri": [
+			
+				{
+					"density": 2, "friction": 10, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [  39, 0 ,  0, 30  ,  80, 30  ,  41, 0 ]
+				}
+		],
+
+		"tee": [
+			
+				{
+					"density": 2, "friction": 10, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   0, 0  ,  120, 0  ,  120, 40  ,  0, 40]
+				},
+				{
+					"density": 2, "friction": 10, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   40, 40  ,  80, 40  ,  80, 80  ,  40, 80]
+				}
+		],
+		
+		"corner": [
+			
+				{
+					"density": 2, "friction": 10, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   0, 0  ,  80, 0  ,  80, 40  ,  0, 40]
+				} ,
+				{
+					"density": 2, "friction": 10, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   40, 40  ,  80, 40  ,  80, 80  ,  40, 80]
+				}
+			
+				
+		],
+
+
+		"bucket": [
+			
+				{
+					"density": 2, "friction": 10, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   0, 0  ,  37, 0  ,  37, 80 ,  0, 80]
+				},
+				{
+					"density": 2, "friction": 10, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   37, 40  ,  83, 40  ,  83, 80  ,  37, 80]
+				},
+				{
+					"density": 2, "friction": 10, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   83, 0  ,  120, 0  ,  120, 80  ,  83, 80]
+				}
 		]
-		
-		
+
 }
