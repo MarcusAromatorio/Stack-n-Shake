@@ -51,8 +51,7 @@ var app = (function(app){
 			
 			//  We're going to be using physics, so enable the P2 Physics system
 			this.game.physics.startSystem(Phaser.Physics.P2JS);
-			// Gravity isn't enabled in this version of the physics
-			// this.game.physics.gravity.y = 200;
+			this.game.physics.p2.gravity.y = 100;
 			this.game.physics.p2.restitution = 0.9;
 			
 			this.scoreText = this.game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
@@ -83,60 +82,11 @@ var app = (function(app){
 		* Create a new Piece.
 		*/
 		createPiece: function() {
-			// Randomly generate 
-			var pieceType = this.game.rnd.integerInRange(0,5);
-			var pieceOrientation = this.game.rnd.integerInRange(0,3);
-			var newPiece;
-	
-			if (pieceType == 0) {
-				newPiece = this.game.add.sprite(40,80, 'rectangle');
-				// For reference, this is the line that shows hitbox
-				// If this line says true, an after image will be left
-				this.game.physics.p2.enable(newPiece, false);
-				newPiece.body.clearShapes();
-				newPiece.body.loadPolygon('physicsData', 'rectangle');
-				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
-				newPiece.body.angle = pieceOrientation * 90;
-			} else if (pieceType == 1) {
-				// Still squares for testing purposes
-				newPiece = this.game.add.sprite(40,40, 'square');
-				this.game.physics.p2.enable(newPiece, true);
-				newPiece.body.clearShapes();
-				newPiece.body.loadPolygon('physicsData', 'square');
-				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
-				newPiece.body.angle = pieceOrientation * 90;
-			} else if (pieceType == 2) {
-				newPiece = this.game.add.sprite(120,80, 'tee');
-				this.game.physics.p2.enable(newPiece, false);
-				newPiece.body.clearShapes();
-				newPiece.body.loadPolygon('physicsData', 'tee');
-				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
-				newPiece.body.angle = pieceOrientation * 90;
-			} else if (pieceType == 3) {
-				newPiece = this.game.add.sprite(80,80, 'corner');
-				this.game.physics.p2.enable(newPiece, true);
-				newPiece.body.clearShapes();
-				newPiece.body.loadPolygon('physicsData', 'corner');
-				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
-				newPiece.body.angle = pieceOrientation * 90;
-			} else if (pieceType == 4) {
-				newPiece = this.game.add.sprite(120,80, 'bucket');
-				this.game.physics.p2.enable(newPiece, true);
-				newPiece.body.clearShapes();
-				newPiece.body.loadPolygon('physicsData', 'bucket');
-				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
-				newPiece.body.angle = pieceOrientation * 90;
-			} else {
-				newPiece = this.game.add.sprite(40,40, 'square');
-				this.game.physics.p2.enable(newPiece, false);
-				newPiece.body.clearShapes();
-				newPiece.body.loadPolygon('physicsData', 'square');
-				newPiece.body.x = this.game.rnd.integerInRange(newPiece.width, app.SCREEN_WIDTH-newPiece.width);
-			}
 			
-			// Move all of the pieces down.
-			newPiece.body.velocity.y = 200;
-			this.pieces.add(newPiece);
+			var piece = new app.Piece(this.game);
+			
+			// Add the piece to the "pieces" group
+			this.pieces.add(piece);
 			
 		}, // End createPiece
 	
@@ -186,7 +136,7 @@ var app = (function(app){
 				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
 					piece.kill();
 					piece.visible = false;
-					self.createPiece(); // PROBLEM HERE
+					self.createPiece();
 				}
 
 				if(piece.body.velocity.y <= 3){
@@ -197,7 +147,7 @@ var app = (function(app){
 
 			// Deal with all the pieces in tower
 			this.tower.forEachAlive(function(piece){
-				piece.body.velocity.y = 200;
+				piece.body.velocity.y = 20;
 
 				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
 					self.collapseTower();
@@ -233,7 +183,7 @@ var app = (function(app){
 					player.body.velocity.x = 0;
 				});
 				this.tower.forEachAlive(function(piece) {
-					piece.body.velocity.x =0;
+					// piece.body.velocity.x = 0;
 				});
 			}
 
