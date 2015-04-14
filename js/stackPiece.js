@@ -46,6 +46,7 @@ var app = (function(app){
 		// Each piece is a sprite, and each sprite needs width and height set to correct values
 		var width;
 		var height;
+		var inTower = false;
 
 		// Switch statement to describe the desired piece object
 		// Both numbers from 0 - 5 and string types are compared

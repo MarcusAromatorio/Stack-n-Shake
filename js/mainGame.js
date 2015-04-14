@@ -52,6 +52,7 @@ var app = (function(app){
 			//  We're going to be using physics, so enable the P2 Physics system
 			this.game.physics.startSystem(Phaser.Physics.P2JS);
 			this.game.physics.p2.gravity.y = 100;
+			this.game.physics.p2.applygravity = true;
 			this.game.physics.p2.restitution = 0.9;
 			
 			this.scoreText = this.game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
@@ -84,7 +85,9 @@ var app = (function(app){
 		createPiece: function() {
 			
 			var piece = new app.Piece(this.game);
+			piece.body.onBeginContact.add(this.addToTower(body), this);
 			
+			piece.
 			// Add the piece to the "pieces" group
 			this.pieces.add(piece);
 			
@@ -94,7 +97,9 @@ var app = (function(app){
 		* Add things to the tower.
 		*/
 		addToTower: function(piece) {
-			this.tower.add(piece);			
+			if (tower.getChildIndex(piece)){
+				this.tower.add(piece);				
+			}
 		}, // End addToTower
 
 		/**
@@ -119,7 +124,8 @@ var app = (function(app){
 		scoreTower: function(Tower) {
 	
 		}, // End scoreTower
-	
+
+
 		/**
 		* Update the stuff.
 		*/
@@ -132,22 +138,22 @@ var app = (function(app){
 			// Deal with all the pieces 
 			this.pieces.forEachAlive(function(piece) {
 	
+				
+
 				// Kill the Piece if it hits the Bottom
 				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
 					piece.kill();
 					piece.visible = false;
 					self.createPiece();
 				}
-
-				if(piece.body.velocity.y <= 3){
-					self.addToTower(piece);
-					self.createPiece();
-				}
+				checkTowerCollision();
+				
 			});
 
 			// Deal with all the pieces in tower
 			this.tower.forEachAlive(function(piece){
-				piece.body.velocity.y = 20;
+
+				
 
 				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
 					self.collapseTower();
