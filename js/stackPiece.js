@@ -149,6 +149,8 @@ var app = (function(app){
 		// Same as when a new piece is created, random integer between the left and right sides of the world
 		piece.body.x = piece.game.rnd.integerInRange(piece.width, app.SCREEN_WIDTH - piece.width);
 		piece.body.y = 10;
+		// Make sure that the piece doesn't carry it's "momentum" from last time it fell
+		piece.body.velocity = 0;
 
 		// Make sure the revived piece doesn't consider itself stacked on a tower before it even fully revives
 		piece.stacked = false;

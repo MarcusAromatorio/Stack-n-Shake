@@ -66,7 +66,8 @@ var app = (function(app){
 		* Physics System -> Phaser.P2 physics
 		* Impact Events -> 	True
 		* Apply Gravity -> 	True
-		* Gravity.y 	-> 	100		(100 pixels per second downwards)
+		* Gravity.y 	-> 	50		(50 pixels per second downwards)
+		* Restitution -> 	0	(0% restitution, no bounce)
 		* Game.Stage.backgroundColor -> #000
 		*
 		* Objects and Data Structures defined second and involve the physical objects themselves
@@ -97,7 +98,7 @@ var app = (function(app){
 			this.game.physics.p2.setImpactEvents(true);
 
 			// Set the properties of physics interactions here
-			this.game.physics.p2.gravity.y = 100;
+			this.game.physics.p2.gravity.y = 50;
 			this.game.physics.p2.applygravity = true;
 			this.game.physics.p2.restitution = 0;
 			
@@ -257,17 +258,29 @@ var app = (function(app){
 				}
 			});
 
+
+
 			// The cursor handler.
 			if (this.cursors.left.isDown) {
 				//  Move to the left
 				this.platforms.forEachAlive(function(player) {
 					player.body.moveLeft(200);
 				});
+				this.pieces.forEachAlive(function(piece) {
+					if (piece.stacked) {
+						piece.body.moveLeft(200);
+					}
+				});
 			}
 			else if (this.cursors.right.isDown) {
 				//  Move to the right
 				this.platforms.forEachAlive(function(player) {
 					player.body.moveRight(200);
+				});
+				this.pieces.forEachAlive(function(piece) {
+					if (piece.stacked) {
+						piece.body.moveRight(200);
+					}
 				});
 			}
 			else {
@@ -292,7 +305,7 @@ var app = (function(app){
 	*/
 	function testIfStacked(bodyA, bodyB) {
 		// If bodyB IS of a stacked sprite AND bodyA is NOT of a stacked sprite, then make bodyA's sprite stacked
-		if(bodyB.sprite.stacked == true && bodyA.sprite.stacked == false) {
+		if(bodyB.sprite.stacked == true && bodyA.sprite.stacked == false && Math.abs(bodyA.velocity.y) < 5) {
 			bodyA.sprite.stacked = true;
 		}
 		// Otherwise, nothing happens
