@@ -67,7 +67,6 @@ var app = (function(app){
 		* Impact Events -> 	True
 		* Apply Gravity -> 	True
 		* Gravity.y 	-> 	100		(100 pixels per second downwards)
-		* Restitution -> 	0.05	(5% restitution, very little bounce)
 		* Game.Stage.backgroundColor -> #000
 		*
 		* Objects and Data Structures defined second and involve the physical objects themselves
@@ -100,7 +99,7 @@ var app = (function(app){
 			// Set the properties of physics interactions here
 			this.game.physics.p2.gravity.y = 100;
 			this.game.physics.p2.applygravity = true;
-			this.game.physics.p2.restitution = 0.05;
+			this.game.physics.p2.restitution = 0;
 			
 			// Give the scoreText something to draw on screen
 			this.scoreText = this.game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
