@@ -28,12 +28,13 @@ var app = (function(app){
 		this.cursors;
 		this.platforms;
 		this.scoreText;
+		this.timerText;
 		this.pieces;
 		this.tower;
-		this.timer; 
 		this.playerCollision;
 		this.pieceCollision;
 		this.score = 0;
+		this.timer = 60; 
 	}
 	
 	/**
@@ -102,9 +103,10 @@ var app = (function(app){
 			this.game.physics.p2.applygravity = true;
 			this.game.physics.p2.restitution = 0;
 			
-			// Give the scoreText something to draw on screen
+			// Give the scoreText and timer something to draw on screen
 			this.scoreText = this.game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
-			
+			this.timerText = this.game.add.text(16, 48, 'time: ', { fontSize: '30px', fill :'#FFF'});
+
 			//  Create all of the groups in the game
 			this.platforms = this.game.add.group();	
 			this.pieces = this.game.add.group();
@@ -150,8 +152,11 @@ var app = (function(app){
 			this.fillPiecePool(40);
 
 			// With the pieces filled, set a looping timer that revives one of the dead pieces to drop
-			// This statement describes a looping event that revives a piece every 1.5 seconds
-			this.game.time.events.loop(1500, this.reviveOne, this, this); // Improper behavior with first 'this', second 'this' passed as explicit parameter
+			// This statement describes a looping event that revives a piece every 4 seconds
+			this.game.time.events.loop(4000, this.reviveOne, this, this); // Improper behavior with first 'this', second 'this' passed as explicit parameter
+			
+			// This will count using the same mehtod as above, and once a second will update the timer.
+			this.game.time.events.loop(1000, this.updateTimer, this, this);
 		}, // End create
 
 
@@ -233,7 +238,21 @@ var app = (function(app){
 				}
 			});
 			this.score += tempScore * multi;
+			this.timer += multi;
 		}, // End collapseTower
+
+		/*
+		* Update the timer and it's text
+		*/
+		updateTimer: function() {
+			if (this.timer > 0) {
+				this.timer--;
+	
+			}
+			if (this.timer == 0) {
+				// GAME OVER 
+			}
+		}, // End updateTimer
 
 		/**
 		* Update the stuff.
@@ -307,6 +326,7 @@ var app = (function(app){
 			}
 
 			this.scoreText.text = "Score: " + self.score;
+			this.timerText.text = "Time: " + self.timer;
 
 		} // End Update
 	} // End mainGame.prototype
