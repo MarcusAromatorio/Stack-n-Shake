@@ -26,6 +26,8 @@ var app = (function(app){
 	* ninety-degree steps (orthogonal). Create a piece with the now defined properties, add a physics collider 
 	* that should already exist, enable physics on the body, and place it at (x, y), or (0, 0) if undefined.
 	* 
+	* To aid in custom collision behavior in-game, the physics body of all pieces has a property called 'stacked',
+	* which describes whether the piece is considered a part of the tower or not.
 	*
 	*/
 	app.Piece = function(game, type, x, y){
@@ -46,13 +48,12 @@ var app = (function(app){
 		// Each piece is a sprite, and each sprite needs width and height set to correct values
 		var width;
 		var height;
-		var inTower = false;
 
 		// Switch statement to describe the desired piece object
 		// Both numbers from 0 - 5 and string types are compared
 		// Width and height of sprite are what depends on the type
 		// 'type' is also forced to be a string here, in case it is a number
-		switch(type){
+		switch(type) {
 			// Type 0 is a rectangle
 			case 0:
 				type = 'rectangle'; // Set to string in case it isn't already
@@ -116,7 +117,7 @@ var app = (function(app){
 
 		// Define (x, y) if not already
 		if(!x)
-			x = game.rnd.integerInRange(piece.width, app.SCREEN_WIDTH-piece.width);
+			x = game.rnd.integerInRange(piece.width, app.SCREEN_WIDTH - piece.width);
 		if(!y)
 			y = 10; // A bit below the top edge of the screen
 
@@ -124,9 +125,34 @@ var app = (function(app){
 		piece.body.x = x;
 		piece.body.y = y;
 
+		// Custom boolean for collision behavior in-game
+		// Default value is false, set to true when a part of an in-game tower
+		piece.stacked = false;
+
+		// Add a custom callback to the onKilled event, where in the case that a piece is reused
+		// The piece will not be revived with incorrect properties (i.e. at the bottom of the screen)
+		piece.events.onKilled.add(resetProperties, this);
+
 		// Done! Return the new piece object
 		return piece;
 	}
+
+	/**
+	* Function to reset properties of the piece to resemble a 'new' piece.
+	* Used as a callback in the event of a piece being killed 
+	* 
+	* Places the piece's body at the top of the screen and at a random X location
+	* Sets the piece body's 'stacked' property to false, to ensure a new piece doesn't think its already on a tower
+	*/
+	function resetProperties(piece) {
+
+		// Same as when a new piece is created, random integer between the left and right sides of the world
+		piece.body.x = piece.game.rnd.integerInRange(piece.width, app.SCREEN_WIDTH - piece.width);
+		piece.body.y = 10;
+
+		// Make sure the revived piece doesn't consider itself stacked on a tower before it even fully revives
+		piece.stacked = false;
+	}// End resetProperties
 
 
 	// Return the augmented module to the global scope

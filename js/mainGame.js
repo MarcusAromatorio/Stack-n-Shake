@@ -1,12 +1,27 @@
+/*
+* The mainGame script describes stack 'n' shaek main play mode
+* This mode rewards the player with more time for stacking up a tower of pieces and toppling their stack
+*
+* Using the module pattern, the webpage's global app variable is given new functionality, namely the mainGame variable
+*
+* The mainGame variable is used as a Phaser.State object, which uses predetermined prototype functions 
+* (preload, create, update, etc)
+*
+* Created within the main game is a pool of 40 'piece' objects, which are 
+* instances of Phaser.Sprite with custom images & colliders for their desired shapes
+*
+*
+*/
+
 'use strict';
 
 var app = (function(app){	
 
 	
 	/**
-	* Main game state
+	* Main game state variable
 	*
-	* Defines all needed variables for the main game to play
+	* Defines all needed variables for the main game to play, initialized to a default value
 	*/
 	var mainGame = function(game){
 		// Variables
@@ -16,6 +31,8 @@ var app = (function(app){
 		this.pieces;
 		this.tower;
 		this.timer; 
+		this.playerCollision;
+		this.pieceCollision;
 		this.score = 0;
 	}
 	
@@ -27,7 +44,7 @@ var app = (function(app){
 		
 		/**
 		* Function to preload necessary images
-		* 
+		* Predefined function called by Phaser, happens before updating or creating actual objects
 		*/
 		preload: function() {
 			this.game.load.image('square', 'assets/square.png');
@@ -42,89 +59,181 @@ var app = (function(app){
 		}, // End preload
 	
 		/**
-		* Set up the stage for the game.
+		* Function to create and define objects and world properties
+		* 
+		* Properties of the world are defined first and largely revolve around the physics of the world
+		* 
+		* Physics System -> Phaser.P2 physics
+		* Impact Events -> 	True
+		* Apply Gravity -> 	True
+		* Gravity.y 	-> 	100		(100 pixels per second downwards)
+		* Restitution -> 	0.05	(5% restitution, very little bounce)
+		* Game.Stage.backgroundColor -> #000
+		*
+		* Objects and Data Structures defined second and involve the physical objects themselves
+		* These come second because more objects rely on physics than those that do not
+		* 
+		* Cursors -> 			game.input.keyboard
+		* Pieces -> 			game.group
+		* Player Platform -> 	game.group
+		* Score Text -> 		game.text
+		* Player Collision -> 	game.physics.collisionGroup
+		* Piece Collision ->	game.physics.collisionGroup
+		* Platforms ->			game.group
+		* Pieces -> 			game.group
+		*
 		*/
 		create: function() {
-	
+			
+			// Define the cursors that will control the player
 			this.cursors = this.game.input.keyboard.createCursorKeys();
+
+			// Define the background color for the stage
 			this.game.stage.backgroundColor = '#000';
 			
 			//  We're going to be using physics, so enable the P2 Physics system
 			this.game.physics.startSystem(Phaser.Physics.P2JS);
+
+			// Tell the game to fire impact events - these will allow for custom collision responses
+			this.game.physics.p2.setImpactEvents(true);
+
+			// Set the properties of physics interactions here
 			this.game.physics.p2.gravity.y = 100;
 			this.game.physics.p2.applygravity = true;
-			this.game.physics.p2.restitution = 0.9;
+			this.game.physics.p2.restitution = 0.05;
 			
+			// Give the scoreText something to draw on screen
 			this.scoreText = this.game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
 			
 			//  Create all of the groups in the game
 			this.platforms = this.game.add.group();	
-			this.pieces = this.game.add.group();	
-			this.tower = this.game.add.group();
+			this.pieces = this.game.add.group();
+
+			// Enable physics on the piece and tower groups
+			this.pieces.enableBody = true;
+			this.pieces.physicsBodyType = Phaser.Physics.P2JS;
+
+			// Create the collision groups
+			this.playerCollision = this.game.physics.p2.createCollisionGroup();
+			this.pieceCollision = this.game.physics.p2.createCollisionGroup();
+
+			// Make sure that bounds collision is updated -- allows all collider groups to stay within world bounds
+			this.game.physics.p2.updateBoundsCollisionGroup();
 	
 			// Create the platform on which blocks will land.
 			var playerPlatform = this.game.add.sprite(40, 80, 'rectangle');
-			this.game.physics.p2.enable(playerPlatform, true);
+
+			// Enable physics on the platform
+			this.game.physics.p2.enable(playerPlatform, false);
+
+			// Load the collision information and set other properties
 			playerPlatform.body.loadPolygon('physicsData', 'rectangle');
 			playerPlatform.body.x = app.SCREEN_WIDTH /2;
 			playerPlatform.body.y = app.SCREEN_HEIGHT - (app.SCREEN_HEIGHT/5);
 			playerPlatform.body.angle = 90;
 			playerPlatform.body.kinematic = true;
-	
+			playerPlatform.stacked = true;
+
+			// Add the playerPlatform to the playerCollision group
+			playerPlatform.body.setCollisionGroup(this.playerCollision);
+			
+			// Define what the playerPlatform collides with
+			// Not adding a callback because one is not necessary
+			playerPlatform.body.collides(this.pieceCollision);
+
 			// Add the platform to the platform group. 
 			// This is here in case we decide to add more platforms later.
 			this.platforms.add(playerPlatform);
 	
-			// Create the test piece
-			this.createPiece();
+			// Fill the pool of pieces with dead game objects
+			// Rather morbid
+			this.fillPiecePool(40);
+
+			// With the pieces filled, set a looping timer that revives one of the dead pieces to drop
+			// This statement describes a looping event that revives a piece every 1.5 seconds
+			this.game.time.events.loop(1500, this.reviveOne, this, this); // Improper behavior with first 'this', second 'this' passed as explicit parameter
 		}, // End create
-	
-		/**
-		* Create a new Piece.
-		*/
-		createPiece: function() {
-			
-			var piece = new app.Piece(this.game);
-			piece.body.onBeginContact.add(this.addToTower(body), this);
-			
-			piece.
-			// Add the piece to the "pieces" group
-			this.pieces.add(piece);
-			
-		}, // End createPiece
-	
-		/**
-		* Add things to the tower.
-		*/
-		addToTower: function(piece) {
-			if (tower.getChildIndex(piece)){
-				this.tower.add(piece);				
-			}
-		}, // End addToTower
+
 
 		/**
-		* Remove things from the tower.
+		* Method that populates the pieces group with a specified amount of piece objects
+		* Pieces are defined in the stackPiece.js file
+		* All pieces start dead so that they don't all pollute the game space
+		* All pieces have an onRevive event listener that resets their internal values
+		*
+		* @param {number} [10] - The number of pieces to add to the pieces group
 		*/
-		collapseTower: function(){
-			var tempScore = 0;
-			var multi = this.tower.countLiving();
-			this.tower.forEachAlive(function(piece){
+		fillPiecePool: function (numPieces) {
+			// If numPieces isn't defined, set it to 10
+			if(numPieces === undefined)
+				numPieces = 10;
+
+			// Loop the specified amount of times, creating a piece each time (and killing it)
+			for(var i = 0; i < numPieces; i++) {
+
+				// Make a new piece
+				var piece = new app.Piece(this.game);
+
+				// Add the piece to the 'pieces' group
+				this.pieces.add(piece);
+
+				// Set the collisionGroup of the piece to the pieceCollision group
+				piece.body.setCollisionGroup(this.pieceCollision);
+
+				// Define the callback for whenever a piece collides with either another piece or a player platform
+				piece.body.collides([this.pieceCollision, this.playerCollision], testIfStacked, this);
+
+				// Kill the piece, we don't want to start with lots of living pieces crowding the screen
 				piece.kill();
-				piece.visible = false;
-				tempScore += 50;
+
+			}// End for-loop
+		},// End fillPiecePool
+
+		/**
+		* Method to revive a single piece, which "drops" it from the top of the screen
+		* Randomly selects a dead piece and calls revive() on it
+		* 
+		* Used as a callback in the mainGame's timeDropper object, which is an instance of Phaser.Timer
+		*/
+		reviveOne: function(context) {
+			// Count how many dead pieces there are and save the max
+			var max = context.pieces.countDead() - 1;
+
+			// Take a random integer number no greater than the amount of all dead pieces
+			var chosenOne = context.game.rnd.integerInRange(0, max);
+
+			// Declare the iterator that will be checked against the chosenOne
+			var i = 0;
+
+			// Check if the dead piece per-loop is the chosen one and resurrect it
+			context.pieces.forEachDead(function(piece){
+				// Check if iterator matches the chosen random value
+				if(i == chosenOne) {
+					// Revive the piece that the iterator fell upon
+					piece.revive();
+				}
+				// Iterate as the loop executes
+				i++;
+			}, context);
+		}, // End reviveOne
+
+		/**
+		* Method that removes pieces from the tower and gives the player a score
+		* All pieces flagged as 'stacked' are considered in the tower
+		*/
+		collapseTower: function() {
+			var tempScore = 0;
+			var multi = 0;
+
+			this.pieces.forEachAlive(function(piece) {
+				if(piece.stacked){
+					piece.kill();
+					tempScore += 50;
+					multi ++;
+				}
 			});
 			this.score += tempScore * multi;
 		}, // End collapseTower
-	
-		/**
-		* Calculate the points of the scored tower.
-		* @param {Tower} - a tower object to be scored.
-		* @returns {Number} - the point value that the tower was worth.
-		*/
-		scoreTower: function(Tower) {
-	
-		}, // End scoreTower
-
 
 		/**
 		* Update the stuff.
@@ -134,53 +243,32 @@ var app = (function(app){
 			// Bug present if createPiece() called within the forEachAlive loop
 			// Remedy by setting context variable "self" to outside scope
 			var self = this;
-			
-			// Deal with all the pieces 
-			this.pieces.forEachAlive(function(piece) {
-	
-				
 
+			// Deal with all the pieces second
+			this.pieces.forEachAlive(function(piece) {
 				// Kill the Piece if it hits the Bottom
 				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
-					piece.kill();
-					piece.visible = false;
-					self.createPiece();
+					// If the piece-to-die is stacked, call collapseTower
+					if(piece.stacked) {
+						self.collapseTower(); // Here is where it doesn't work
+					}
+					else {
+						piece.kill();
+					}
 				}
-				checkTowerCollision();
-				
 			});
 
-			// Deal with all the pieces in tower
-			this.tower.forEachAlive(function(piece){
-
-				
-
-				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
-					self.collapseTower();
-				}
-
-
-
-			});	
 			// The cursor handler.
 			if (this.cursors.left.isDown) {
 				//  Move to the left
-				// console.log("left");
 				this.platforms.forEachAlive(function(player) {
 					player.body.moveLeft(200);
-				});
-				this.tower.forEachAlive(function(piece) {
-					piece.body.moveLeft(200);
 				});
 			}
 			else if (this.cursors.right.isDown) {
 				//  Move to the right
-				// console.log("right");
 				this.platforms.forEachAlive(function(player) {
 					player.body.moveRight(200);
-				});
-				this.tower.forEachAlive(function(piece) {
-					piece.body.moveRight(200);
 				});
 			}
 			else {
@@ -188,15 +276,28 @@ var app = (function(app){
 				this.platforms.forEachAlive(function(player) {
 					player.body.velocity.x = 0;
 				});
-				this.tower.forEachAlive(function(piece) {
-					// piece.body.velocity.x = 0;
-				});
 			}
 
-			this.scoreText.text = "Score: " + this.score;
+			this.scoreText.text = "Score: " + self.score;
 
 		} // End Update
 	} // End mainGame.prototype
+
+	/**
+	* Function that adds a piece object to the tower group in the event of a collision 
+	* between an unstacked piece and a stacked piece. 
+	* 'stacked' is a variable attached to the body of the piece
+	*
+	* @param {Phaser.Physics.Body} The body of the piece who called this collision event handler
+	* @param {Phaser.Physics.Body} The body of the piece that bodyA collided with
+	*/
+	function testIfStacked(bodyA, bodyB) {
+		// If bodyB IS of a stacked sprite AND bodyA is NOT of a stacked sprite, then make bodyA's sprite stacked
+		if(bodyB.sprite.stacked == true && bodyA.sprite.stacked == false) {
+			bodyA.sprite.stacked = true;
+		}
+		// Otherwise, nothing happens
+	}// End testIfStacked
 	
 	// Adding mainGame state to the module interface
 	app.mainGame = mainGame;
