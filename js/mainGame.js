@@ -264,24 +264,40 @@ var app = (function(app){
 			if (this.cursors.left.isDown) {
 				//  Move to the left
 				this.platforms.forEachAlive(function(player) {
-					player.body.moveLeft(200);
+					// Make sure platform's positions are greater than the left bound
+					if (player.body.x >= 0 + player.width/2) {
+						player.body.moveLeft(200);
+					} else {
+						// Stand still
+						player.body.velocity.x = 0;
+					}
 				});
+				/*
 				this.pieces.forEachAlive(function(piece) {
 					if (piece.stacked) {
 						piece.body.moveLeft(200);
 					}
 				});
+				*/
 			}
 			else if (this.cursors.right.isDown) {
 				//  Move to the right
 				this.platforms.forEachAlive(function(player) {
-					player.body.moveRight(200);
+					// Make sure platform's positions are less than the right bound
+					if (player.body.x <= app.SCREEN_WIDTH - player.width) {
+						player.body.moveRight(200);
+					} else {
+						// Stand still
+						player.body.velocity.x = 0;
+					}
 				});
+				/*
 				this.pieces.forEachAlive(function(piece) {
 					if (piece.stacked) {
 						piece.body.moveRight(200);
 					}
 				});
+				*/
 			}
 			else {
 				// Stand still
