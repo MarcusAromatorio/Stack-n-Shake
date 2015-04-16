@@ -160,4 +160,4 @@ var app = (function(app){
 	// Return the augmented module to the global scope
 	return app;
 
-}(app || {}))
+}(app || {}));

@@ -43,6 +43,11 @@ var app = (function(app){
 	*/
 	mainGame.prototype = {
 		
+		// Function that initializes values before the game begins
+		init: function() {
+			this.timer = 60;
+		},
+
 		/**
 		* Function to preload necessary images
 		* Predefined function called by Phaser, happens before updating or creating actual objects
@@ -259,7 +264,7 @@ var app = (function(app){
 		*/
 		update: function() {
 			
-			// Bug present if createPiece() called within the forEachAlive loop
+			// Context of "this" changes within function scope of forEachAlive
 			// Remedy by setting context variable "self" to outside scope
 			var self = this;
 
@@ -269,8 +274,9 @@ var app = (function(app){
 				if(piece.body.y >= (app.SCREEN_HEIGHT - piece.height)) {
 					// If the piece-to-die is stacked, call collapseTower
 					if(piece.stacked) {
-						self.collapseTower(); // Here is where it doesn't work
+						self.collapseTower();
 					}
+					// Otherwise just remove the piece for now
 					else {
 						piece.kill();
 					}
@@ -328,7 +334,25 @@ var app = (function(app){
 			this.scoreText.text = "Score: " + self.score;
 			this.timerText.text = "Time: " + self.timer;
 
-		} // End Update
+			// If the timer ran out, end the game
+			if(this.timer <= 0) {
+				this.game.state.start('GameOver', this.score);
+			}
+
+		},// End Update
+
+		// The shutdown function that gets called when the mainGame state is exited
+		shutdown: function(){
+			// All pieces are destroyed
+			this.pieces.destroy();
+
+			// All platforms are destroyed
+			this.platforms.destroy();
+
+			// Remove the text from the screen
+			this.scoreText.destroy();
+			this.timerText.destroy();
+		}
 	} // End mainGame.prototype
 
 	/**
@@ -336,8 +360,8 @@ var app = (function(app){
 	* between an unstacked piece and a stacked piece. 
 	* 'stacked' is a variable attached to the body of the piece
 	*
-	* @param {Phaser.Physics.Body} The body of the piece who called this collision event handler
-	* @param {Phaser.Physics.Body} The body of the piece that bodyA collided with
+	* @param {Phaser.Physics.Body} [bodyA] The body of the piece who called this collision event handler
+	* @param {Phaser.Physics.Body} [bodyB] The body of the piece that bodyA collided with
 	*/
 	function testIfStacked(bodyA, bodyB) {
 		// If bodyB IS of a stacked sprite AND bodyA is NOT of a stacked sprite, then make bodyA's sprite stacked
@@ -353,4 +377,4 @@ var app = (function(app){
 	// Return the app with its augments here
 	return app;
 // Following the module pattern, IFFE invokes with either a predefined app or an empty object
-}(app || {}))
+}(app || {}));

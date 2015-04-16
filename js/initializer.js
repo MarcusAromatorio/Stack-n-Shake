@@ -85,7 +85,7 @@ var app = (function(app){
 
 				// Add the button that starts the game
 				// Game.add.button takes numerous optional arguments
-				this.startButton = this.game.add.button( 260, 400, 'button', startGame, this, 2, 1, 0);
+				this.startButton = this.game.add.button(260, 400, 'button', startGame, this, 2, 1, 0);
 			}
 		};// End mainMenu.prototype
 		
@@ -93,6 +93,7 @@ var app = (function(app){
 		// Add the main menu game state to the game itself
 		game.state.add('MainMenu', mainMenu);
 		game.state.add('MainGame', app.mainGame);
+		game.state.add('GameOver', app.gameOver);
 		game.state.start('MainMenu');
 		// As of version 1.0, no additional steps take place in initialization
 	} // End init
