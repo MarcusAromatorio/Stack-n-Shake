@@ -24,17 +24,24 @@ var app = (function(app){
 	* Defines all needed variables for the main game to play, initialized to a default value
 	*/
 	var mainGame = function(game){
-		// Variables
+		// Groups
 		this.cursors;
 		this.platforms;
-		this.scoreText;
-		this.timerText;
+		this.warnings;
 		this.pieces;
 		this.tower;
+		
+		// Display 
+		this.scoreText;
+		this.timerText;
+
+		// Collision Groups
 		this.playerCollision;
 		this.pieceCollision;
-		this.score = 0;
-		this.timer = 60; 
+
+		// Values
+		this.score;
+		this.timer; 
 	}
 	
 	/**
@@ -42,12 +49,13 @@ var app = (function(app){
 	* Contains phaser default functions
 	*/
 	mainGame.prototype = {
-		
 		// Function that initializes values before the game begins
 		init: function() {
 			this.timer = 60;
+			this.score = 0;
 		},
 
+		
 		/**
 		* Function to preload necessary images
 		* Predefined function called by Phaser, happens before updating or creating actual objects
@@ -107,6 +115,7 @@ var app = (function(app){
 			this.game.physics.p2.gravity.y = 50;
 			this.game.physics.p2.applygravity = true;
 			this.game.physics.p2.restitution = 0;
+			this.game.physics.p2.friction = 100;
 			
 			// Give the scoreText and timer something to draw on screen
 			this.scoreText = this.game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFF' });
@@ -161,7 +170,7 @@ var app = (function(app){
 			this.game.time.events.loop(4000, this.reviveOne, this, this); // Improper behavior with first 'this', second 'this' passed as explicit parameter
 			
 			// This will count using the same mehtod as above, and once a second will update the timer.
-			this.game.time.events.loop(1000, this.updateTimer, this, this);
+			this.game.time.events.loop(1000, this.updateTimer, this, this); // Still Improper
 		}, // End create
 
 
@@ -200,9 +209,36 @@ var app = (function(app){
 		},// End fillPiecePool
 
 		/**
+		* Method that populates the warnings group with a specified amount of warning objects
+		* Warnings are defined in the warning.js file
+		* All warnings start dead so that they don't all pollute the game space
+		* All warnings have an onRevive event listener that resets their internal values
+		*
+		* @param {number} [5] - The number of warnings to add to the warnings group
+		*/
+		fillWarningPool: function (numWarnings) {
+			// If numwarnings isn't defined, set it to 5
+			if(numWarnings === undefined)
+				numWarnings = 5;
+
+			// Loop the specified amount of times, creating a warning each time (and killing it)
+			for(var i = 0; i < numWarnings; i++) {
+
+				// Make a new warning
+				var warning = new app.warning(this.game);
+
+				// Add the warning to the 'warnings' group
+				this.warnings.add(warning);
+
+				// Kill the warning, we don't want to start with lots of living warnings crowding the screen
+				warning.kill();
+
+			}// End for-loop
+		},// End fillWarningPool
+
+		/**
 		* Method to revive a single piece, which "drops" it from the top of the screen
 		* Randomly selects a dead piece and calls revive() on it
-		* 
 		* Used as a callback in the mainGame's timeDropper object, which is an instance of Phaser.Timer
 		*/
 		reviveOne: function(context) {
@@ -228,7 +264,7 @@ var app = (function(app){
 		}, // End reviveOne
 
 		/**
-		* Method that removes pieces from the tower and gives the player a score
+		* Method that removes pieces from the tower and gives the player a score and time bonus
 		* All pieces flagged as 'stacked' are considered in the tower
 		*/
 		collapseTower: function() {
@@ -264,7 +300,7 @@ var app = (function(app){
 		*/
 		update: function() {
 			
-			// Context of "this" changes within function scope of forEachAlive
+			// Bug present if createPiece() called within the forEachAlive loop
 			// Remedy by setting context variable "self" to outside scope
 			var self = this;
 
@@ -276,12 +312,12 @@ var app = (function(app){
 					if(piece.stacked) {
 						self.collapseTower();
 					}
-					// Otherwise just remove the piece for now
 					else {
 						piece.kill();
 					}
 				}
 			});
+
 
 
 
@@ -297,13 +333,6 @@ var app = (function(app){
 						player.body.velocity.x = 0;
 					}
 				});
-				/*
-				this.pieces.forEachAlive(function(piece) {
-					if (piece.stacked) {
-						piece.body.moveLeft(200);
-					}
-				});
-				*/
 			}
 			else if (this.cursors.right.isDown) {
 				//  Move to the right
@@ -316,13 +345,6 @@ var app = (function(app){
 						player.body.velocity.x = 0;
 					}
 				});
-				/*
-				this.pieces.forEachAlive(function(piece) {
-					if (piece.stacked) {
-						piece.body.moveRight(200);
-					}
-				});
-				*/
 			}
 			else {
 				// Stand still
@@ -333,6 +355,7 @@ var app = (function(app){
 
 			this.scoreText.text = "Score: " + self.score;
 			this.timerText.text = "Time: " + self.timer;
+
 
 			// If the timer ran out, end the game
 			if(this.timer <= 0) {
@@ -352,7 +375,7 @@ var app = (function(app){
 			// Remove the text from the screen
 			this.scoreText.destroy();
 			this.timerText.destroy();
-		}
+		} // End shutdown
 	} // End mainGame.prototype
 
 	/**
@@ -360,8 +383,8 @@ var app = (function(app){
 	* between an unstacked piece and a stacked piece. 
 	* 'stacked' is a variable attached to the body of the piece
 	*
-	* @param {Phaser.Physics.Body} [bodyA] The body of the piece who called this collision event handler
-	* @param {Phaser.Physics.Body} [bodyB] The body of the piece that bodyA collided with
+	* @param {Phaser.Physics.Body} The body of the piece who called this collision event handler
+	* @param {Phaser.Physics.Body} The body of the piece that bodyA collided with
 	*/
 	function testIfStacked(bodyA, bodyB) {
 		// If bodyB IS of a stacked sprite AND bodyA is NOT of a stacked sprite, then make bodyA's sprite stacked
