@@ -125,6 +125,7 @@ var app = (function(app){
 			//  Create all of the groups in the game
 			this.platforms = this.game.add.group();	
 			this.pieces = this.game.add.group();
+			this.warnings = this.game.add.group();
 
 			// Enable physics on the piece and tower groups
 			this.pieces.enableBody = true;
@@ -165,6 +166,10 @@ var app = (function(app){
 			// Fill the pool of pieces with dead game objects
 			// Rather morbid
 			this.fillPiecePool(40);
+
+			// Fill the pool of warnings with dead warning objects
+			// Still morbid
+			this.fillWarningPool(5);
 
 			// With the pieces filled, set a looping timer that revives one of the dead pieces to drop
 			// This statement describes a looping event that revives a piece every 4 seconds
