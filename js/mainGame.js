@@ -285,7 +285,7 @@ var app = (function(app){
 				}
 			});
 			this.score += tempScore * multi;
-			this.timer += multi;
+			this.timer += multi*2;
 		}, // End collapseTower
 
 		/*
@@ -294,10 +294,6 @@ var app = (function(app){
 		updateTimer: function() {
 			if (this.timer > 0) {
 				this.timer--;
-	
-			}
-			if (this.timer == 0) {
-				// GAME OVER 
 			}
 		}, // End updateTimer
 
@@ -403,7 +399,7 @@ var app = (function(app){
 	*/
 	function testIfStacked(bodyA, bodyB) {
 		// If bodyB IS of a stacked sprite AND bodyA is NOT of a stacked sprite, then make bodyA's sprite stacked
-		if(bodyB.sprite.stacked == true && bodyA.sprite.stacked == false && Math.abs(bodyA.velocity.y) < 5) {
+		if(bodyB.sprite.stacked == true && bodyA.sprite.stacked == false && bodyA.velocity < 20) {
 			bodyA.sprite.stacked = true;
 		}
 		// Otherwise, nothing happens
