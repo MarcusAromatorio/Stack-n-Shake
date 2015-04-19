@@ -67,6 +67,7 @@ var app = (function(app){
 			this.game.load.image('tee', 'assets/tee.png');
 			this.game.load.image('corner', 'assets/corner.png');
 			this.game.load.image('bucket', 'assets/bucket.png');
+			this.game.load.image('playerPlatform', 'assets/playerPlatform.png');
 			
 			// Get physics for all of the pieces
 			this.game.load.physics('physicsData', 'assets/physics/sprites.json');
@@ -137,13 +138,13 @@ var app = (function(app){
 			this.game.physics.p2.updateBoundsCollisionGroup();
 	
 			// Create the platform on which blocks will land.
-			var playerPlatform = this.game.add.sprite(40, 80, 'rectangle');
+			var playerPlatform = this.game.add.sprite(40, 80, 'playerPlatform');
 
 			// Enable physics on the platform
 			this.game.physics.p2.enable(playerPlatform, false);
 
 			// Load the collision information and set other properties
-			playerPlatform.body.loadPolygon('physicsData', 'rectangle');
+			playerPlatform.body.loadPolygon('physicsData', 'playerPlatform');
 			playerPlatform.body.x = app.SCREEN_WIDTH /2;
 			playerPlatform.body.y = app.SCREEN_HEIGHT - (app.SCREEN_HEIGHT/5);
 			playerPlatform.body.angle = 90;
@@ -225,7 +226,7 @@ var app = (function(app){
 			for(var i = 0; i < numWarnings; i++) {
 
 				// Make a new warning
-				var warning = new app.warning(this.game);
+				var warning = new app.Warning(this.game, 0, 0);
 
 				// Add the warning to the 'warnings' group
 				this.warnings.add(warning);

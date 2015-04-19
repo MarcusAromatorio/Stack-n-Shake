@@ -19,6 +19,16 @@
 		
 		],
 
+		"playerPlatform": [
+				
+				{
+					"density": 2, "friction": 100, "bounce": 0, 
+					"filter": { "categoryBits": 1, "maskBits": 65535 },
+					"shape": [   0, 0  ,  40, 0  ,  40, 120  ,  0, 120  ]
+				}
+		
+		],
+
 		"tri": [
 			
 				{

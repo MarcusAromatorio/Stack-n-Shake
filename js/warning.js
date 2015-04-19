@@ -32,11 +32,14 @@ var app = (function(app){
 			throw new Error("\"game\" parameter is undefined. Must be instance of Phaser.Game()");
 		}
 		
-		var warning = game.add.sprite(x, y);
+		var width = 10;
+		var height = 5;
+
+		var warning = game.add.sprite(width, height, 'tri');
 		game.physics.p2.enable(warning, false); // False makes sure the collision body doesn't draw as well
 		warning.body.clearShapes(); // Ensure no default collider boxes exist
-		warning.body.x = x;
-		warning.body.y = y;
+		warning.body.x = x; // Set the x value to the passed parameter
+		warning.body.y = y; // Set the y value as well 
 
 		// Add a custom callback to the onKilled event, where in the case that a warning is reused
 		// The warning will not be revived with incorrect properties (i.e. at the bottom of the screen)

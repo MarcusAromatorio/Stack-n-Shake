@@ -30,7 +30,7 @@ var app = (function(app){
 	* which describes whether the piece is considered a part of the tower or not.
 	*
 	*/
-	app.Piece = function(game, type, x, y){
+	app.Piece = function(game, type, x, y) {
 		// If the game parameter is undefined, throw an error. This cannot be left out!
 		// Also throw error if the game parameter isn't an instance of Phaser.Game
 		if(!game || !(game instanceof Phaser.Game)){
