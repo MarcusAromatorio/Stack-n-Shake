@@ -113,7 +113,7 @@ var app = (function(app){
 			this.game.physics.p2.setImpactEvents(true);
 
 			// Set the properties of physics interactions here
-			this.game.physics.p2.gravity.y = 50;
+			this.game.physics.p2.gravity.y = 500;
 			this.game.physics.p2.applygravity = true;
 			this.game.physics.p2.restitution = 0;
 			this.game.physics.p2.friction = 100;
@@ -172,8 +172,8 @@ var app = (function(app){
 			this.fillWarningPool(5);
 
 			// With the pieces filled, set a looping timer that revives one of the dead pieces to drop
-			// This statement describes a looping event that revives a piece every 4 seconds
-			this.game.time.events.loop(4000, this.reviveOne, this, this); // Improper behavior with first 'this', second 'this' passed as explicit parameter
+			// This statement describes a looping event that revives a piece every 3 seconds
+			this.game.time.events.loop(3000, this.reviveOne, this, this); // Improper behavior with first 'this', second 'this' passed as explicit parameter
 			
 			// This will count using the same mehtod as above, and once a second will update the timer.
 			this.game.time.events.loop(1000, this.updateTimer, this, this); // Still Improper
@@ -333,7 +333,7 @@ var app = (function(app){
 				this.platforms.forEachAlive(function(player) {
 					// Make sure platform's positions are greater than the left bound
 					if (player.body.x >= 0 + player.width/2) {
-						player.body.moveLeft(200);
+						player.body.velocity.x = Math.max(player.body.velocity.x -10, -200);
 					} else {
 						// Stand still
 						player.body.velocity.x = 0;
@@ -345,7 +345,10 @@ var app = (function(app){
 				this.platforms.forEachAlive(function(player) {
 					// Make sure platform's positions are less than the right bound
 					if (player.body.x <= app.SCREEN_WIDTH - player.width) {
-						player.body.moveRight(200);
+						// if the players velocity+10 is smaller then 200
+						// then the velocity becomes the velocity+10
+						// otherwise it caps out at 200
+						player.body.velocity.x = Math.min(player.body.velocity.x +10, 200);
 					} else {
 						// Stand still
 						player.body.velocity.x = 0;
@@ -355,7 +358,13 @@ var app = (function(app){
 			else {
 				// Stand still
 				this.platforms.forEachAlive(function(player) {
-					player.body.velocity.x = 0;
+					// if the velocity is positive move it towards 0
+					// if the velocity is negative move it towards the 0
+					if (player.body.velocity.x > 0) {
+						player.body.velocity.x = Math.max(player.body.velocity.x -10, 0);
+					} else if ( player.body.velocity.x <0) {
+						player.body.velocity.x = Math.min(player.body.velocity.x + 10, 0);
+					}
 				});
 			}
 
