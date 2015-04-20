@@ -36,10 +36,8 @@ var app = (function(app){
 		var height = 5;
 
 		var warning = game.add.sprite(width, height, 'tri');
-		game.physics.p2.enable(warning, false); // False makes sure the collision body doesn't draw as well
-		warning.body.clearShapes(); // Ensure no default collider boxes exist
-		warning.body.x = x; // Set the x value to the passed parameter
-		warning.body.y = y; // Set the y value as well 
+		warning.x = x; // Set the x value to the passed parameter
+		warning.y = y; // Set the y value as well 
 
 		// Add a custom callback to the onKilled event, where in the case that a warning is reused
 		// The warning will not be revived with incorrect properties (i.e. at the bottom of the screen)
@@ -53,12 +51,10 @@ var app = (function(app){
 	* Function to reset properties of the warning to resemble a 'new' warning.
 	* Used as a callback in the event of a warning being killed 
 	* 
-	* Places the warning's body at the top of the screen and at a random X location
-	* Sets the warning body's 'stacked' property to false, to ensure a new warning doesn't think its already on a tower
 	*/
 	function resetProperties(warning) {
-		warning.body.x = 0;
-		warning.body.y = 0;
+		warning.x = 0;
+		warning.y = 0;
 
 	}// End resetProperties
 

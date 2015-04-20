@@ -132,7 +132,7 @@ var app = (function(app){
 		// Add a custom callback to the onKilled event, where in the case that a piece is reused
 		// The piece will not be revived with incorrect properties (i.e. at the bottom of the screen)
 		piece.events.onKilled.add(resetProperties, this);
-
+		
 		// Done! Return the new piece object
 		return piece;
 	}
@@ -150,7 +150,8 @@ var app = (function(app){
 		piece.body.x = piece.game.rnd.integerInRange(piece.width, app.SCREEN_WIDTH - piece.width);
 		piece.body.y = 10;
 		// Make sure that the piece doesn't carry it's "momentum" from last time it fell
-		piece.body.velocity = 0;
+		piece.body.setZeroVelocity();
+		piece.body.setZeroRotation(); // Stop the piece from spinning on revival
 
 		// Make sure the revived piece doesn't consider itself stacked on a tower before it even fully revives
 		piece.stacked = false;

@@ -41,7 +41,10 @@ var app = (function(app){
 
 		// Values
 		this.score;
-		this.timer; 
+		this.timer;
+		this.warningTimer;
+		this.nextPieceX;
+		this.nextPieceY;
 	}
 	
 	/**
@@ -53,6 +56,8 @@ var app = (function(app){
 		init: function() {
 			this.timer = 60;
 			this.score = 0;
+			this.nextPieceX = 0;
+			this.nextPieceY = 40;
 		},
 
 		
@@ -99,6 +104,9 @@ var app = (function(app){
 		*
 		*/
 		create: function() {
+
+			// Give nextPieceX the proper value
+			this.nextPieceX = this.game.rnd.integerInRange(40, app.SCREEN_WIDTH - 40);
 			
 			// Define the cursors that will control the player
 			this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -113,7 +121,7 @@ var app = (function(app){
 			this.game.physics.p2.setImpactEvents(true);
 
 			// Set the properties of physics interactions here
-			this.game.physics.p2.gravity.y = 500;
+			this.game.physics.p2.gravity.y = 200;
 			this.game.physics.p2.applygravity = true;
 			this.game.physics.p2.restitution = 0;
 			this.game.physics.p2.friction = 100;
@@ -170,6 +178,12 @@ var app = (function(app){
 			// Fill the pool of warnings with dead warning objects
 			// Still morbid
 			this.fillWarningPool(5);
+
+			// Quick revival of the warning for the next piece to drop
+			var nextWarn = this.warnings.getFirstDead();
+			nextWarn.x = this.nextPieceX;
+			nextWarn.y = this.nextPieceY + 40;
+			nextWarn.revive();
 
 			// With the pieces filled, set a looping timer that revives one of the dead pieces to drop
 			// This statement describes a looping event that revives a piece every 3 seconds
@@ -246,9 +260,12 @@ var app = (function(app){
 		* Method to revive a single piece, which "drops" it from the top of the screen
 		* Randomly selects a dead piece and calls revive() on it
 		* Used as a callback in the mainGame's timeDropper object, which is an instance of Phaser.Timer
+		*
+		* @param {Phaser.State} the context variable that should be used to access properties and methods of the game state
 		*/
 		reviveOne: function(context) {
 			// Count how many dead pieces there are and save the max
+			// max is one less than total dead pieces to index an array properly
 			var max = context.pieces.countDead() - 1;
 
 			// Take a random integer number no greater than the amount of all dead pieces
@@ -260,9 +277,28 @@ var app = (function(app){
 			// Check if the dead piece per-loop is the chosen one and resurrect it
 			context.pieces.forEachDead(function(piece){
 				// Check if iterator matches the chosen random value
+				// In the case of a match, a piece is revived, the warning is killed, the next piece location is determined, and a new warning is made
 				if(i == chosenOne) {
-					// Revive the piece that the iterator fell upon
+
+					// Revive the piece and put it at the designated position
 					piece.revive();
+					piece.body.x = this.nextPieceX;
+					piece.body.y = this.nextPieceY;
+
+					// Kill the warning that was pointing out this piece
+					this.warnings.getFirstAlive().kill();
+
+					// The warning dies in the name of the chosen one
+					// Revive a new warning to herald the arrival of the next chosen one
+					var nextWarning = this.warnings.getFirstDead().revive();
+
+					// Determine new drop location
+					this.nextPieceX = piece.game.rnd.integerInRange(40, app.SCREEN_WIDTH - 40);
+
+					// Give the newly revived warning correct values
+					nextWarning.x = this.nextPieceX;
+					nextWarning.y = this.nextPieceY + 40;
+
 				}
 				// Iterate as the loop executes
 				i++;
@@ -329,7 +365,7 @@ var app = (function(app){
 				this.platforms.forEachAlive(function(player) {
 					// Make sure platform's positions are greater than the left bound
 					if (player.body.x >= 0 + player.width/2) {
-						player.body.velocity.x = Math.max(player.body.velocity.x -10, -200);
+						player.body.velocity.x = Math.max(player.body.velocity.x -20, -200);
 					} else {
 						// Stand still
 						player.body.velocity.x = 0;
@@ -344,7 +380,7 @@ var app = (function(app){
 						// if the players velocity+10 is smaller then 200
 						// then the velocity becomes the velocity+10
 						// otherwise it caps out at 200
-						player.body.velocity.x = Math.min(player.body.velocity.x +10, 200);
+						player.body.velocity.x = Math.min(player.body.velocity.x + 20, 200);
 					} else {
 						// Stand still
 						player.body.velocity.x = 0;
@@ -357,7 +393,7 @@ var app = (function(app){
 					// if the velocity is positive move it towards 0
 					// if the velocity is negative move it towards the 0
 					if (player.body.velocity.x > 0) {
-						player.body.velocity.x = Math.max(player.body.velocity.x -10, 0);
+						player.body.velocity.x = Math.max(player.body.velocity.x - 10, 0);
 					} else if ( player.body.velocity.x <0) {
 						player.body.velocity.x = Math.min(player.body.velocity.x + 10, 0);
 					}
@@ -382,6 +418,9 @@ var app = (function(app){
 
 			// All platforms are destroyed
 			this.platforms.destroy();
+
+			// All warnings are destroyed
+			this.warnings.destroy();
 
 			// Remove the text from the screen
 			this.scoreText.destroy();
