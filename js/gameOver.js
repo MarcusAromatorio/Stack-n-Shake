@@ -28,13 +28,13 @@ var app = (function(app){
 			this.game.stage.backgroundColor = '#669999';
 
 			// Give value to each of the null variables defined above
-			this.endText = this.game.add.text(220, 100, 'Game Over!');
+			this.endText = this.game.add.text(170, 100, 'Game Over!', {font:'bold 36pt Roboto'});
 
 			// Show the player their score
-			this.roundScore = this.game.add.text(150, 200, 'Your score this time was: ' + this.roundScore, {font:'bold 14pt Arial'});
+			this.roundScore = this.game.add.text(150, 200, 'Your score this time was: ' + this.roundScore, {font:'14pt Roboto'});
 
 			// Here is where the local highscore will be displayed
-			this.highScore = this.game.add.text(150, 240, 'High Score: ', {font:'bold 14pt Arial'});
+			this.highScore = this.game.add.text(150, 240, 'High Score: ', {font:'14pt Roboto'});
 
 			// Place the reset button on the screen with a small text object describing its purpose
 			this.game.add.text(200, 350, 'Play Again?');

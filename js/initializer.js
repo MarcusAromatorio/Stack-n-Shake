@@ -77,11 +77,11 @@ var app = (function(app){
 				
 				// Add the title of the game to the top of the screen
 				// Unnamed Phaser.text object
-				this.game.add.text(200, 100, 'Stack \'n\' Shake!');
+				this.game.add.text(200, 100, 'Stack \'n\' Shake!', {font:'bold 36pt Roboto'});
 
 				// Create the instructions text object here
-				this.controlsText = this.game.add.text(100, 200, 'Left and Right arrow keys to move the platform', {font:'bold 14pt Arial'});
-				this.instructionText = this.game.add.text(85, 300,'Stack up a tower of blocks and topple it for points!', {font: 'bold 14pt Arial'});
+				this.controlsText = this.game.add.text(100, 200, 'Left and Right arrow keys to move the platform', {font:'16pt Roboto'});
+				this.instructionText = this.game.add.text(85, 300,'Stack up a tower of blocks and topple it for points!', {font: '16pt Roboto'});
 
 				// Add the button that starts the game
 				// Game.add.button takes numerous optional arguments
