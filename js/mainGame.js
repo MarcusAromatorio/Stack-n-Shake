@@ -35,6 +35,11 @@ var app = (function(app){
 		this.scoreText;
 		this.timerText;
 
+		// Sounds
+		this.bgMusic;
+		this.scoredSound;
+		this.stackedSound;
+
 		// Collision Groups
 		this.playerCollision;
 		this.pieceCollision;
@@ -45,6 +50,8 @@ var app = (function(app){
 		this.warningTimer;
 		this.nextPieceX;
 		this.nextPieceY;
+		this.currentStackCount;
+		this.lastStackCount;
 	}
 	
 	/**
@@ -58,6 +65,8 @@ var app = (function(app){
 			this.score = 0;
 			this.nextPieceX = 0;
 			this.nextPieceY = 40;
+			this.currentStackCount = 0;
+			this.lastStackCount = 0;
 		},
 
 		
@@ -75,6 +84,11 @@ var app = (function(app){
 			this.game.load.image('bucket', 'assets/bucket.png');
 			this.game.load.image('playerPlatform', 'assets/playerPlatform.png');
 			this.game.load.image('background', 'assets/background.png');
+
+			// Load sound effects and music
+			this.game.load.audio('bgMusic', 'assets/bgMusic.mp3');
+			this.game.load.audio('stacked', 'assets/stacked.wav');
+			this.game.load.audio('scored', 'assets/scored.wav');
 			
 			// Get physics for all of the pieces
 			this.game.load.physics('physicsData', 'assets/physics/sprites.json');
@@ -193,6 +207,15 @@ var app = (function(app){
 			
 			// This will count using the same mehtod as above, and once a second will update the timer.
 			this.game.time.events.loop(1000, this.updateTimer, this, this); // Still Improper
+
+
+			// Start off the background music in a loop
+			this.bgMusic = new Phaser.Sound(this.game, 'bgMusic', 1, true);
+			this.bgMusic.play();
+
+			// Set up sound effects
+			this.stackedSound = new Phaser.Sound(this.game, 'stacked', 1, false);
+			this.scoredSound = new Phaser.Sound(this.game, 'scored', 1, false);
 		}, // End create
 
 
@@ -324,6 +347,10 @@ var app = (function(app){
 			});
 			this.score += tempScore * multi;
 			this.timer += multi*2;
+			this.scoredSound.play();
+
+			this.currentStackCount = 0;
+			this.lastStackCount = 0;
 		}, // End collapseTower
 
 		/*
@@ -358,8 +385,8 @@ var app = (function(app){
 				}
 			});
 
-
-
+			// Check if a new piece was added to the stack
+			this.checkAddedStack();
 
 			// The cursor handler.
 			if (this.cursors.left.isDown) {
@@ -408,14 +435,39 @@ var app = (function(app){
 
 			// If the timer ran out, end the game
 			if(this.timer <= 0) {
+				// Stop the music
+				this.bgMusic.stop();
+
 				// Change the roundScore to the score at the end of the game
 				app.roundScore = this.score;
+				
 				// Create the new State
 				this.game.state.start('GameOver', this.score);
-				
 			}
 
 		},// End Update
+
+		// See if a new piece was added to the stack
+		checkAddedStack: function(){
+			this.currentStackCount = 0;
+
+			var self = this;
+
+			// Total the current stack count
+			this.pieces.forEachAlive(function(piece){
+				if(piece.stacked){
+					self.currentStackCount ++;
+				}
+			});
+
+			// See if there is a difference. If so, a piece was added to the stack
+			if(this.currentStackCount != this.lastStackCount){
+				this.stackedSound.play();
+			}
+
+			// Set the previous count to the current count for next call
+			this.lastStackCount = this.currentStackCount;
+		},
 
 		// The shutdown function that gets called when the mainGame state is exited
 		shutdown: function() {
@@ -431,6 +483,11 @@ var app = (function(app){
 			// Remove the text from the screen
 			this.scoreText.destroy();
 			this.timerText.destroy();
+
+			// Destroy the sound assets
+			//this.bgMusic.destroy();
+			//this.scoredSound.destroy();
+			//this.stackedSound.destroy();
 		} // End shutdown
 	} // End mainGame.prototype
 
