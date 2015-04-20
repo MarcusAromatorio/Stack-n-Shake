@@ -21,11 +21,16 @@ var app = (function(app){
 	// Here the prototype of the game state is defined, so that it matches the predefined methods of Phaser states
 	gameOver.prototype = {
 
+		preload: function() {
+			// Load in the background image
+			this.game.load.image('background' , 'assets/background.png');
+		},
+
 		// Game Over is just a menu like screen, so all that needs to be done is to create the visuals
 		create: function() {
 
-			// Reset the background so that previous drawing is cleared
-			this.game.stage.backgroundColor = '#669999';
+			// Define the background for the stage
+			this.game.add.tileSprite(0, 0, app.SCREEN_WIDTH, app.SCREEN_HEIGHT, 'background');
 
 			// Give value to each of the null variables defined above
 			this.endText = this.game.add.text(170, 100, 'Game Over!', {font:'bold 36pt Roboto'});

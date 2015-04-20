@@ -66,6 +66,7 @@ var app = (function(app){
 		* Predefined function called by Phaser, happens before updating or creating actual objects
 		*/
 		preload: function() {
+			// Load in all the sprite images
 			this.game.load.image('square', 'assets/square.png');
 			this.game.load.image('rectangle', 'assets/rectangle.png');
 			this.game.load.image('tri', 'assets/tri.png');
@@ -73,6 +74,7 @@ var app = (function(app){
 			this.game.load.image('corner', 'assets/corner.png');
 			this.game.load.image('bucket', 'assets/bucket.png');
 			this.game.load.image('playerPlatform', 'assets/playerPlatform.png');
+			this.game.load.image('background', 'assets/background.png');
 			
 			// Get physics for all of the pieces
 			this.game.load.physics('physicsData', 'assets/physics/sprites.json');
@@ -111,8 +113,8 @@ var app = (function(app){
 			// Define the cursors that will control the player
 			this.cursors = this.game.input.keyboard.createCursorKeys();
 
-			// Define the background color for the stage
-			this.game.stage.backgroundColor = '#000';
+			// Define the background for the stage
+			this.game.add.tileSprite(0, 0, app.SCREEN_WIDTH, app.SCREEN_HEIGHT, 'background');
 			
 			//  We're going to be using physics, so enable the P2 Physics system
 			this.game.physics.startSystem(Phaser.Physics.P2JS);
@@ -121,7 +123,7 @@ var app = (function(app){
 			this.game.physics.p2.setImpactEvents(true);
 
 			// Set the properties of physics interactions here
-			this.game.physics.p2.gravity.y = 200;
+			this.game.physics.p2.gravity.y = 300;
 			this.game.physics.p2.applygravity = true;
 			this.game.physics.p2.restitution = 0;
 			this.game.physics.p2.friction = 100;
@@ -365,7 +367,7 @@ var app = (function(app){
 				this.platforms.forEachAlive(function(player) {
 					// Make sure platform's positions are greater than the left bound
 					if (player.body.x >= 0 + player.width/2) {
-						player.body.velocity.x = Math.max(player.body.velocity.x -20, -200);
+						player.body.velocity.x = Math.max(player.body.velocity.x -10, -230);
 					} else {
 						// Stand still
 						player.body.velocity.x = 0;
@@ -380,7 +382,7 @@ var app = (function(app){
 						// if the players velocity+10 is smaller then 200
 						// then the velocity becomes the velocity+10
 						// otherwise it caps out at 200
-						player.body.velocity.x = Math.min(player.body.velocity.x + 20, 200);
+						player.body.velocity.x = Math.min(player.body.velocity.x + 10, 230);
 					} else {
 						// Stand still
 						player.body.velocity.x = 0;
@@ -438,7 +440,7 @@ var app = (function(app){
 	*/
 	function testIfStacked(bodyA, bodyB) {
 		// If bodyB IS of a stacked sprite AND bodyA is NOT of a stacked sprite, then make bodyA's sprite stacked
-		if(bodyB.sprite.stacked == true && bodyA.sprite.stacked == false && bodyA.velocity < 20) {
+		if(bodyB.sprite.stacked == true && bodyA.sprite.stacked == false && bodyA.velocity.y < 20) {
 			bodyA.sprite.stacked = true;
 		}
 		// Otherwise, nothing happens

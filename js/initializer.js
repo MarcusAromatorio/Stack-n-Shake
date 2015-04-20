@@ -68,16 +68,18 @@ var app = (function(app){
 			preload: function() {
 				// Load the images for the button
 				this.game.load.spritesheet('button', 'assets/buttonSheet.png', 80, 40); // Sprite sheet for the button object
+				this.game.load.image('background' , 'assets/background.png');
 			},
 
 			create: function() {
 				
-				// Set the background color to be easy on the eyes
-				this.game.stage.backgroundColor = '#669999';
+				// Define the background for the stage
+				this.game.add.tileSprite(0, 0, app.SCREEN_WIDTH, app.SCREEN_HEIGHT, 'background');
+			
 				
 				// Add the title of the game to the top of the screen
 				// Unnamed Phaser.text object
-				this.game.add.text(200, 100, 'Stack \'n\' Shake!', {font:'bold 36pt Roboto'});
+				this.game.add.text(150, 100, 'Stack \'n\' Shake!', {font:'bold 36pt Roboto'});
 
 				// Create the instructions text object here
 				this.controlsText = this.game.add.text(100, 200, 'Left and Right arrow keys to move the platform', {font:'16pt Roboto'});
