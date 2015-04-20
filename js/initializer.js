@@ -32,8 +32,10 @@ var app = (function(app){
 	var SCREEN_WIDTH = 600;
 	var SCREEN_HEIGHT = 700;
 
+	var roundScore = 0;
+
 	// Initialization function to call once the page completes loading
-	function init(){
+	function init() {
 
 		// Phaser.game() takes numerous optional arg's
 		// Those specified here describe: width, height, and renderer 

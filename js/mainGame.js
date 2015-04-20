@@ -408,13 +408,17 @@ var app = (function(app){
 
 			// If the timer ran out, end the game
 			if(this.timer <= 0) {
+				// Change the roundScore to the score at the end of the game
+				app.roundScore = this.score;
+				// Create the new State
 				this.game.state.start('GameOver', this.score);
+				
 			}
 
 		},// End Update
 
 		// The shutdown function that gets called when the mainGame state is exited
-		shutdown: function(){
+		shutdown: function() {
 			// All pieces are destroyed
 			this.pieces.destroy();
 
